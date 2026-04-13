@@ -1,5 +1,6 @@
 import os
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import List, Optional
 
 import httpx
@@ -13,13 +14,13 @@ from rag import RAGEngine
 # Config
 # ---------------------------------------------------------------------------
 
-load_dotenv()
+load_dotenv(Path(__file__).parent / ".env")
 
 OPENROUTER_API_KEY: str = os.environ["OPENROUTER_API_KEY"]
 OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
 
-rag = RAGEngine(files_dir="files")
+rag = RAGEngine(files_dir=str(Path(__file__).parent / "files"))
 
 # ---------------------------------------------------------------------------
 # Lifespan (startup / shutdown)
