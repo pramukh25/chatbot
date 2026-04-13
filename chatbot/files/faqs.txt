@@ -1,0 +1,116 @@
+Q: How can I update my profile information?
+A: Navigate to your profile settings in the app to update your personal details, including contact information and profile picture.
+
+---
+
+Q: What should I do if I encounter technical issues?
+A: Restart the app, clear cache, or update to the latest version. If the issue persists, contact platform@arche.global.
+
+---
+
+Q: How can I access company policies and resources?
+A: Navigate to the Home screen and select 'Policy' under MyArche. This service contains the updated policy documents. For further assistance, please reach out to your on-floor HR team or email bharathi.p@arche.global.
+
+---
+
+Q: How do I access my benefits enrollment information?
+A: Navigate to the Home screen and select 'Policy' under MyArche. Policy documents such as the Employee Gift Policy, Employee Referral Policy, and Employee Loan Policy are listed. If you do not find the necessary information, please reach out to your on-floor HR team or email bharathi.p@arche.global.
+
+---
+
+Q: How do I access my Performance Management (PMS)?
+A: Navigate to the Home screen and select 'ZingHR' under MyApps. Authenticate yourself and look for PMS — this will help you understand your current progress. For further assistance, please reach out to jinu.p@arche.global.
+
+---
+
+Q: How can I access my Payslips, Form 16, and Form 12A?
+A: Navigate to the Home screen and select 'MyPay' under MyApps. You will be redirected to AzaPay/AzaTecon. Authenticate yourself and look for Payslips, Form 16, and Form 12A. You can also view your Profile, Salary Computation, Tax Computation, Investment Declaration, Provident Fund, and My CTC. For further assistance, please reach out to your on-floor HR team or email bharathi.p@arche.global.
+
+---
+
+Q: How do I access emergency contact information?
+A: Navigate to profile settings to view 'Emergency Contact' details. To update the same, reach out to platform@arche.global.
+
+---
+
+Q: How can I find company holidays and leave policies?
+A: Navigate to the Home screen and select 'Calendar' under MyArche. Holidays, Restricted Holidays, and Global Events are all listed in the Calendar service. You can also view the Arche official Holiday List. Please navigate to ZingHR to access your leave balance and apply for leave.
+
+---
+
+Q: How do I raise a Travel request?
+A: Navigate to the Home screen and select 'Travel' under MyApps. You should then be able to view the request submission form.
+Things to note:
+1. Travel requests must be submitted at least two weeks before the departure date.
+2. The approval email is sent to your Line Manager.
+3. A valid project name and business justification must be provided.
+In case of an urgent travel request or for other queries, please reach out to traveldesk@arche.global. You can also check out the Revised Travel Reimbursement Policy under the Policy Service.
+
+---
+
+Q: How do I submit an idea?
+A: Navigate to the Home screen and select 'IdeaVault' under MyArche. You may choose to submit an idea for ArcheOne improvement or feature addition under the categories listed. For further information, please reach out to platform@arche.global.
+
+---
+
+Q: How do I report an issue, security risk, or non-compliance anonymously?
+A: Navigate to the Home screen and select 'SOS' under MyProdSuite. Choose 'Raise a Concern', select an issue category, and submit a brief description of the concern you wish to raise or report. Click 'Submit' and you will be prompted to choose whether to submit the issue with your identity or anonymously. For further assistance, please reach out to your on-floor HR team or email bharathi.p@arche.global.
+
+---
+
+Q: How do I login to the app?
+A: Enter your credentials on the login screen and tap 'Sign In'.
+
+---
+
+Q: How can I reset my login credentials?
+A: Use the 'Reset Password' option on the login screen.
+
+---
+
+Q: What features are available in the app?
+A: The app includes profile management, benefits, learning resources, and more.
+
+---
+
+Q: How do I customize app tools?
+A: Access settings to personalize your app experience.
+
+---
+
+Q: How do I stay updated with company news and announcements?
+A: To access company-related content through the application:
+1. Click 'Connect': Find this in the app's main menu.
+2. Access Content: Navigate to case studies, blogs, and company posts.
+3. Stay Updated: Explore and engage with the latest updates and insights.
+
+---
+
+Q: How can I provide anonymous feedback?
+A: To provide anonymous feedback through the application:
+1. Go to 'SOS': Click the 'SOS' option in the app menu.
+2. Raise a Concern: Select 'Raise a Concern' under 'SOS'.
+3. Pick a Category: Choose a category for your concern.
+4. Describe: Provide a detailed issue description.
+5. Submit Anonymously: Use the anonymous submission option if preferred.
+
+---
+
+Q: What is the process for reporting workplace issues or concerns?
+A: To report an issue through the application:
+1. Go to 'SOS': Click on 'SOS' in the app menu.
+2. Raise a Concern: Choose 'Raise a Concern'.
+3. Pick a Category: Select a relevant category.
+4. Describe: Provide details about your issue or feedback.
+To submit with your name: skip the anonymous option to include your details.
+To submit anonymously: choose 'Submit Anonymously' to stay anonymous.
+
+---
+
+Q: How can I manage my work schedule?
+A: This feature is currently being worked on. We appreciate your patience.
+
+---
+
+Q: How do I access my project assignments and deadlines?
+A: This feature is currently being worked on. We appreciate your patience.

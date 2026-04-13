@@ -32,14 +32,20 @@ class RAGEngine:
         """
         self.chunks = []
         pdf_files = sorted(self.files_dir.glob("*.pdf"))
+        txt_files = sorted(self.files_dir.glob("*.txt"))
+        all_files = pdf_files + txt_files
 
-        if not pdf_files:
-            print(f"[RAG] No PDF files found in '{self.files_dir}'")
+        if not all_files:
+            print(f"[RAG] No PDF or TXT files found in '{self.files_dir}'")
             return 0
 
         for pdf_path in pdf_files:
             print(f"[RAG] Processing: {pdf_path.name}")
             self._process_pdf(pdf_path)
+
+        for txt_path in txt_files:
+            print(f"[RAG] Processing: {txt_path.name}")
+            self._process_txt(txt_path)
 
         if self.chunks:
             print(f"[RAG] Encoding {len(self.chunks)} chunks …")
@@ -109,6 +115,24 @@ class RAGEngine:
                         )
         except Exception as exc:
             print(f"[RAG] Warning – could not read '{pdf_path.name}': {exc}")
+
+    def _process_txt(self, txt_path: Path) -> None:
+        """Extract text from a plain-text file and append chunks to self.chunks."""
+        try:
+            text = txt_path.read_text(encoding="utf-8", errors="ignore")
+            if not text.strip():
+                return
+            for chunk_text in self._split_into_chunks(text):
+                self.chunks.append(
+                    {
+                        "text": chunk_text,
+                        "document": txt_path.name,
+                        "page": 1,
+                        "chunk_id": len(self.chunks),
+                    }
+                )
+        except Exception as exc:
+            print(f"[RAG] Warning – could not read '{txt_path.name}': {exc}")
 
     def _split_into_chunks(self, text: str) -> List[str]:
         """
