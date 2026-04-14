@@ -1,4 +1,5 @@
 import os
+import re
 from contextlib import asynccontextmanager
 from pathlib import Path
 from typing import List, Optional
@@ -91,6 +92,7 @@ Rules:
 - If the answer cannot be found in the context, respond warmly: "That's a great question! Unfortunately, I don't have specific information on that right now. I'd recommend reaching out to the HR team directly for clarification."
 - Keep answers concise, clear, and actionable.
 - Use bullet points for multi-part answers where appropriate.
+- Do NOT use any markdown formatting. No bold (**text**), no italics (*text*), no headers (#), no backticks. Plain text only.
 
 === CONTEXT START ===
 {context}
@@ -123,9 +125,24 @@ async def _call_openrouter(prompt: str) -> str:
 
     data = resp.json()
     try:
-        return data["choices"][0]["message"]["content"]
+        answer = data["choices"][0]["message"]["content"]
+        return _strip_markdown(answer)
     except (KeyError, IndexError) as exc:
         raise HTTPException(status_code=502, detail=f"Unexpected OpenRouter response: {data}") from exc
+
+
+def _strip_markdown(text: str) -> str:
+    # Remove bold and italic markers
+    text = re.sub(r"\*{1,3}(.+?)\*{1,3}", r"\1", text)
+    # Replace bullet points (* or -) at start of line with a dash
+    text = re.sub(r"^\s*[\*\-]\s+", "- ", text, flags=re.MULTILINE)
+    # Remove headers
+    text = re.sub(r"^#{1,6}\s+", "", text, flags=re.MULTILINE)
+    # Remove backticks
+    text = re.sub(r"`+(.+?)`+", r"\1", text)
+    # Collapse 3+ newlines to 2
+    text = re.sub(r"\n{3,}", "\n\n", text)
+    return text.strip()
 
 
 # ---------------------------------------------------------------------------
@@ -151,6 +168,7 @@ async def chat(request: ChatRequest):
 
     prompt = _build_prompt(request.question, results)
     answer = await _call_openrouter(prompt)
+    answer = answer.strip("\n").strip()
 
     return ChatResponse(answer=answer)
 
