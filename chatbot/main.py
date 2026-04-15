@@ -1,3 +1,4 @@
+import difflib
 import os
 import re
 from contextlib import asynccontextmanager
@@ -68,6 +69,133 @@ class DocumentInfo(BaseModel):
 class DocumentsResponse(BaseModel):
     total_chunks: int
     documents: List[DocumentInfo]
+
+
+# ---------------------------------------------------------------------------
+# Title / keyword → question expansion map
+# ---------------------------------------------------------------------------
+
+_TITLE_TO_QUESTION: dict[str, str] = {
+    # --- Profile ---
+    "profile update": "How can I update my profile information?",
+    "profile": "How can I update my profile information?",
+    "update profile": "How can I update my profile information?",
+    # --- Technical Issues ---
+    "technical issues": "What should I do if I encounter technical issues?",
+    "technical issue": "What should I do if I encounter technical issues?",
+    "technical": "What should I do if I encounter technical issues?",
+    "issue": "What should I do if I encounter technical issues?",
+    # --- Company Policies ---
+    "company policies": "How can I access company policies and resources?",
+    "company policy": "How can I access company policies and resources?",
+    "policy": "How can I access company policies and resources?",
+    "policies": "How can I access company policies and resources?",
+    # --- Benefits Enrollment ---
+    "benefits enrollment": "How do I access my benefits enrollment information?",
+    "benefits": "How do I access my benefits enrollment information?",
+    "enrollment": "How do I access my benefits enrollment information?",
+    # --- PMS ---
+    "performance management (pms)": "How do I access my Performance Management (PMS)?",
+    "performance management": "How do I access my Performance Management (PMS)?",
+    "pms": "How do I access my Performance Management (PMS)?",
+    "performance": "How do I access my Performance Management (PMS)?",
+    # --- Payslips ---
+    "payslips, form16 and form 12a": "How can I access my Payslips, Form16 and Form 12A?",
+    "payslips, form 16 and form 12a": "How can I access my Payslips, Form16 and Form 12A?",
+    "payslip": "How can I access my Payslips, Form16 and Form 12A?",
+    "payslips": "How can I access my Payslips, Form16 and Form 12A?",
+    "pay slip": "How can I access my Payslips, Form16 and Form 12A?",
+    "pay slips": "How can I access my Payslips, Form16 and Form 12A?",
+    "salary slip": "How can I access my Payslips, Form16 and Form 12A?",
+    "form 16": "How can I access my Payslips, Form16 and Form 12A?",
+    "form16": "How can I access my Payslips, Form16 and Form 12A?",
+    "form 12a": "How can I access my Payslips, Form16 and Form 12A?",
+    "form12a": "How can I access my Payslips, Form16 and Form 12A?",
+    "mypay": "How can I access my Payslips, Form16 and Form 12A?",
+    # --- Emergency Contacts ---
+    "emergency contacts": "How do I access emergency contact information?",
+    "emergency contact": "How do I access emergency contact information?",
+    "emergency": "How do I access emergency contact information?",
+    # --- Leave & Holidays ---
+    "leave & holidays": "How can I find company holidays and leave policies?",
+    "leave and holidays": "How can I find company holidays and leave policies?",
+    "leave": "How can I find company holidays and leave policies?",
+    "holidays": "How can I find company holidays and leave policies?",
+    "holiday": "How can I find company holidays and leave policies?",
+    "leave balance": "How can I find company holidays and leave policies?",
+    "calendar": "How can I find company holidays and leave policies?",
+    # --- Travel ---
+    "travel requests": "How do I raise a Travel request?",
+    "travel request": "How do I raise a Travel request?",
+    "travel": "How do I raise a Travel request?",
+    # --- Idea Submissions ---
+    "idea submissions": "How do I submit an idea?",
+    "idea submission": "How do I submit an idea?",
+    "idea": "How do I submit an idea?",
+    "ideas": "How do I submit an idea?",
+    "ideavault": "How do I submit an idea?",
+    # --- Report an Issue ---
+    "report an issue": "How do I report an issue, security risk, or non-compliance anonymously?",
+    "report issue": "How do I report an issue, security risk, or non-compliance anonymously?",
+    "sos": "How do I report an issue, security risk, or non-compliance anonymously?",
+    "non compliance": "How do I report an issue, security risk, or non-compliance anonymously?",
+    "security risk": "How do I report an issue, security risk, or non-compliance anonymously?",
+    # --- Login / Access ---
+    "login, access": "How do I login to the app? How can I reset my login credentials?",
+    "login": "How do I login to the app? How can I reset my login credentials?",
+    "access": "How do I login to the app? How can I reset my login credentials?",
+    "sign in": "How do I login to the app? How can I reset my login credentials?",
+    "password": "How do I login to the app? How can I reset my login credentials?",
+    "reset password": "How do I login to the app? How can I reset my login credentials?",
+    # --- Features / Tools ---
+    "features, tools": "What features are available in the app? How do I customize app tools?",
+    "features": "What features are available in the app? How do I customize app tools?",
+    "tools": "What features are available in the app? How do I customize app tools?",
+    # --- News / Announcements ---
+    "news, announcements": "How do I stay updated with company news and announcements?",
+    "news": "How do I stay updated with company news and announcements?",
+    "announcements": "How do I stay updated with company news and announcements?",
+    "announcement": "How do I stay updated with company news and announcements?",
+    # --- Feedback / Anonymous / SOS ---
+    "feedback, anonymous,sos": "How can I provide anonymous feedback?",
+    "feedback, anonymous, sos": "How can I provide anonymous feedback?",
+    "feedback": "How can I provide anonymous feedback?",
+    "anonymous feedback": "How can I provide anonymous feedback?",
+    "anonymous": "How can I provide anonymous feedback?",
+    # --- Issues / Concerns ---
+    "issues, concerns": "What is the process for reporting workplace issues or concerns?",
+    "issues": "What is the process for reporting workplace issues or concerns?",
+    "concerns": "What is the process for reporting workplace issues or concerns?",
+    "concern": "What is the process for reporting workplace issues or concerns?",
+    "workplace issue": "What is the process for reporting workplace issues or concerns?",
+    # --- Schedule / Work ---
+    "schedule, work": "How can I manage my work schedule?",
+    "schedule": "How can I manage my work schedule?",
+    "work schedule": "How can I manage my work schedule?",
+    # --- Projects / Assignments / Deadlines ---
+    "projects, assignments, deadlines": "How do I access my project assignments and deadlines?",
+    "projects": "How do I access my project assignments and deadlines?",
+    "assignments": "How do I access my project assignments and deadlines?",
+    "deadlines": "How do I access my project assignments and deadlines?",
+}
+
+
+def _expand_query(question: str) -> str:
+    """
+    If the user's input matches a known FAQ title or keyword group
+    (exactly or with minor spelling mistakes), replace it with the
+    corresponding full question for better retrieval.
+    """
+    normalized = question.strip().lower()
+    # Exact match first
+    if normalized in _TITLE_TO_QUESTION:
+        return _TITLE_TO_QUESTION[normalized]
+    # Fuzzy match — cutoff 0.75 tolerates ~1-2 character typos
+    keys = list(_TITLE_TO_QUESTION.keys())
+    matches = difflib.get_close_matches(normalized, keys, n=1, cutoff=0.75)
+    if matches:
+        return _TITLE_TO_QUESTION[matches[0]]
+    return question
 
 
 # ---------------------------------------------------------------------------
@@ -162,11 +290,12 @@ async def chat(request: ChatRequest):
             detail="No documents are indexed. Add PDFs to the 'files/' directory and call POST /reload.",
         )
 
-    results = rag.search(request.question, top_k=request.top_k)
+    expanded_question = _expand_query(request.question)
+    results = rag.search(expanded_question, top_k=request.top_k)
     if not results:
         raise HTTPException(status_code=503, detail="Document index is empty.")
 
-    prompt = _build_prompt(request.question, results)
+    prompt = _build_prompt(expanded_question, results)
     answer = await _call_openrouter(prompt)
     answer = answer.strip("\n").strip()
 
