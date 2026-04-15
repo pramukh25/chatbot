@@ -1,7 +1,8 @@
+import asyncio
 import difflib
 import os
 import re
-from contextlib import asynccontextmanager
+from contextlib import asynccontextmanager, suppress
 from pathlib import Path
 from typing import List, Optional
 
@@ -21,6 +22,8 @@ load_dotenv(Path(__file__).parent / ".env")
 OPENROUTER_API_KEY: str = os.environ["OPENROUTER_API_KEY"]
 OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+ENABLE_FILES_WATCH = os.getenv("ENABLE_FILES_WATCH", "true").strip().lower() not in {"0", "false", "no"}
+FILES_WATCH_INTERVAL_SECONDS = float(os.getenv("FILES_WATCH_INTERVAL_SECONDS", "5"))
 
 rag = RAGEngine(files_dir=str(Path(__file__).parent / "files"))
 
@@ -29,11 +32,35 @@ rag = RAGEngine(files_dir=str(Path(__file__).parent / "files"))
 # ---------------------------------------------------------------------------
 
 
+async def _watch_files_loop() -> None:
+    while True:
+        await asyncio.sleep(FILES_WATCH_INTERVAL_SECONDS)
+        try:
+            changed = await asyncio.to_thread(rag.sync_index_if_needed)
+            if changed:
+                print(f"[watcher] Index rebuilt. {len(rag.chunks)} chunks loaded.")
+        except Exception as exc:
+            print(f"[watcher] Warning: index sync failed: {exc}")
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     count = rag.load_documents()
     print(f"[startup] Indexed {count} chunks from documents.")
-    yield
+
+    watch_task = None
+    if ENABLE_FILES_WATCH and FILES_WATCH_INTERVAL_SECONDS > 0:
+        watch_task = asyncio.create_task(_watch_files_loop())
+        print(f"[startup] Files watcher enabled ({FILES_WATCH_INTERVAL_SECONDS}s interval).")
+
+    try:
+        yield
+    finally:
+        if watch_task:
+            watch_task.cancel()
+            with suppress(asyncio.CancelledError):
+                await watch_task
+        rag.close()
 
 
 app = FastAPI(
@@ -323,7 +350,7 @@ async def reload_documents():
     Re-scan the 'files/' directory and rebuild the index.
     Call this after adding or removing PDF files without restarting the server.
     """
-    count = rag.load_documents()
+    count = rag.load_documents(force_rebuild=True)
     return {"message": f"Index rebuilt. {count} chunks loaded.", "total_chunks": count}
 
 
