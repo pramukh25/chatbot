@@ -7,6 +7,7 @@ from pathlib import Path
 from typing import List, Optional
 
 import httpx
+import uvicorn
 from dotenv import load_dotenv
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
@@ -16,12 +17,12 @@ from rag import RAGEngine
 # ---------------------------------------------------------------------------
 # Config
 # ---------------------------------------------------------------------------
-
-load_dotenv(Path(__file__).parent / ".env")
+load_dotenv(Path(__file__).parent / ".env", override=True)
 
 OPENROUTER_API_KEY: str = os.environ["OPENROUTER_API_KEY"]
 OPENROUTER_MODEL: str = os.getenv("OPENROUTER_MODEL", "google/gemini-2.0-flash-001")
 OPENROUTER_URL = "https://openrouter.ai/api/v1/chat/completions"
+PORT = int(os.getenv("PORT"))
 ENABLE_FILES_WATCH = os.getenv("ENABLE_FILES_WATCH", "true").strip().lower() not in {"0", "false", "no"}
 FILES_WATCH_INTERVAL_SECONDS = float(os.getenv("FILES_WATCH_INTERVAL_SECONDS", "5"))
 
@@ -361,3 +362,7 @@ async def health():
         "model": OPENROUTER_MODEL,
         "chunks_indexed": len(rag.chunks),
     }
+
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="0.0.0.0", port=PORT)
